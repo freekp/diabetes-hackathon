@@ -1,8 +1,3 @@
-var SimpleStorageABI = [ { "constant": false, "inputs": [ { "name": "x", "type": "uint256" } ], "name": "set", "outputs": [], "payable": false, "type": "function" }, { "constant": true, "inputs": [], "name": "get", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "type": "function" } ];
-var SimpleStorageAddress = "0x2f73c9155cf6523db33c25a5f3c50cd9619822f4";
-var SimpleStorageContract = web3.eth.contract(SimpleStorageABI);
-var SimpleStorage = SimpleStorageContract.at(SimpleStorageAddress);
-
 var DiabetesABI = [{"constant":true,"inputs":[{"name":"personAddress","type":"address"},{"name":"reminderIndex","type":"uint256"}],"name":"getReminder","outputs":[{"name":"addressPerson","type":"address"},{"name":"timestamp","type":"uint256"},{"name":"note","type":"string"},{"name":"recurring","type":"bool"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"personAddress","type":"address"}],"name":"getPerson","outputs":[{"name":"addressPerson","type":"address"},{"name":"initialized","type":"bool"},{"name":"numBloodGlucoseLevels","type":"uint256"},{"name":"numReminders","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"persons","outputs":[{"name":"personAddress","type":"address"},{"name":"initialized","type":"bool"},{"name":"numBloodGlucoseLevels","type":"uint256"},{"name":"numReminders","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"doesPersonExist","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"timestamp","type":"uint256"},{"name":"note","type":"string"},{"name":"recurring","type":"bool"}],"name":"addReminder","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"timestamp","type":"uint256"},{"name":"concentration","type":"uint256"},{"name":"measured","type":"string"}],"name":"addBloodGlucoseReading","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"personAddress","type":"address"},{"name":"glucoseIndex","type":"uint256"}],"name":"getBloodGlucoseReading","outputs":[{"name":"addressPerson","type":"address"},{"name":"timestamp","type":"uint256"},{"name":"concentration","type":"uint256"},{"name":"measured","type":"string"}],"payable":false,"type":"function"},{"inputs":[],"payable":false,"type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"person","type":"address"},{"indexed":false,"name":"timestamp","type":"uint256"},{"indexed":false,"name":"concentration","type":"uint256"},{"indexed":false,"name":"measured","type":"string"}],"name":"LogBloodGlucoseReadingAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"person","type":"address"},{"indexed":false,"name":"timestamp","type":"uint256"},{"indexed":false,"name":"note","type":"string"},{"indexed":false,"name":"recurring","type":"bool"}],"name":"LogReminderAdded","type":"event"}];
 var DiabetesAddress = "0x2c740690d2ccd530eb4f4a5cd3340ec918efdbe6";
 var DiabetesContract = web3.eth.contract(DiabetesABI);
@@ -82,7 +77,7 @@ status.command({
         status.sendMessage("Here are you readings");
         for(var i = 0; i < person[2]; i++) {
           var glucoseReading = Diabetes.getBloodGlucoseReading.call(web3.eth.accounts[0], i, {from: web3.eth.accounts[0]});
-          status.sendMessage("Measured: " + glucoseReading[3] + ". Concentration: " + glucoseReading[2] + "mg/dL. " + new Date(glucoseReading[1]));
+          status.sendMessage("Measured: " + glucoseReading[3] + ". Concentration: " + glucoseReading[2] + "mg/dL.");
         }
       }
       
@@ -110,6 +105,7 @@ status.command({
     },
     ],
     handler: function(params) {
+      //TODO fix this
       var dateTime = Date.parse(params.date + ' ' + params.time)
       Diabetes.addReminder(dateTime, params.what, false, {from: web3.eth.accounts[0]});
 
@@ -127,14 +123,13 @@ status.command({
     description: "View your reminders",
     handler: function(params) {
       var person = Diabetes.getPerson.call(web3.eth.accounts[0], {from: web3.eth.accounts[0]});
-      console.log(person);
-      if(person[2] == 0) {
+      if(person[3] == 0) {
         return {"text-message": "You have no reminders yet!"}
       } else {
         status.sendMessage("Here are you reminders");
-        for(var i = 0; i < person[2]; i++) {
+        for(var i = 0; i < person[3]; i++) {
           var reminder = Diabetes.getReminder.call(web3.eth.accounts[0], i, {from: web3.eth.accounts[0]});
-          status.sendMessage("Reminder: " + reminder[2] + " at " + new Date(reminder[1]));
+          status.sendMessage("Reminder: " + reminder[2]);
         }
       }
       
